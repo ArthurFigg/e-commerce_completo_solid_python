@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ produto.nome }} - Loja Noite Azul</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+      :root { --cor-fundo-escuro:#0d1a2d; --cor-fundo-componente:#172b46; --cor-azul-destaque:#0099ff; --cor-texto-claro:#f8f9fa; }
+      body { display:flex; flex-direction:column; min-height:100vh; background:var(--cor-fundo-escuro); color:var(--cor-texto-claro); font-family:'Poppins',sans-serif; }
+      main { flex-grow:1; }
+      .accordion-item{ background-color:var(--cor-fundo-componente); border:1px solid #2a3f5e; }
+      .accordion-body{ background-color:var(--cor-fundo-escuro); }
+      .accordion-header .accordion-button{ background-color:var(--cor-fundo-componente); color:var(--cor-texto-claro); font-weight:600; }
+      .accordion-button:not(.collapsed){ box-shadow:none; background-color:var(--cor-fundo-escuro); color:var(--cor-azul-destaque); }
+      .accordion-button:focus{ box-shadow:none; border-color:rgba(0,153,255,.5); }
+      .wave-trim{ line-height:0; height:80px; overflow:hidden; } .wave-trim svg{ height:100%; width:100%; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: rgba(13, 26, 45, 0.8); backdrop-filter: blur(10px);">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('homepage') }}">🌊 Loja Noite Azul</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('ver_carrinho') }}">Carrinho <i class="bi bi-cart"></i></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="wave-trim">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ffffff" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3L1440,288L1440,0Z"></path></svg>
+    </div>
+
+    <main class="container my-5">
+      <div class="row">
+        <div class="col-md-6 mb-4 mb-md-0">
+          <img src="https://placehold.co/800x600/0d1a2d/f8f9fa?text={{ produto.nome | urlencode }}" class="img-fluid rounded shadow-lg" alt="Imagem de {{ produto.nome }}">
+        </div>
+
+        <div class="col-md-6">
+          <h1 class="display-5 fw-bold">{{ produto.nome }}</h1>
+          <p class="text-white-50">Produto selecionado da Loja Noite Azul.</p>
+          
+          <div class="d-flex align-items-center my-4">
+            <span class="display-4 fw-bold me-3">R$ {{ "%.2f"|format(produto.preco) }}</span>
+            {% if produto.quantidade > 0 %}<span class="badge text-bg-primary">Em Estoque</span>{% else %}<span class="badge text-bg-secondary">Indisponível</span>{% endif %}
+          </div>
+
+          <form method="post" action="{{ url_for('adicionar_ao_carrinho', product_id=produto.id) }}" class="mb-4">
+            <label for="quantity" class="form-label">Quantidade:</label>
+            <div class="input-group" style="max-width: 180px;">
+              <input type="number" class="form-control text-center" value="1" id="quantity" name="quantidade" min="1" {% if produto.quantidade %}max="{{ produto.quantidade }}"{% endif %} {% if produto.quantidade == 0 %}disabled{% endif %}>
+              <button class="btn btn-primary" type="submit" {% if produto.quantidade == 0 %}disabled{% endif %}>
+                <i class="bi bi-cart-plus-fill me-2"></i> Adicionar ao Carrinho
+              </button>
+            </div>
+          </form>
+
+          <div class="accordion mt-5" id="detailsAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesc">Descrição Completa</button></h2>
+              <div id="collapseDesc" class="accordion-collapse collapse show"><div class="accordion-body">
+                {{ ("O produto %s foi desenvolvido com materiais selecionados e alto padrão de qualidade.")|format(produto.nome) }}
+              </div></div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSpecs">Especificações Técnicas</button></h2>
+              <div id="collapseSpecs" class="accordion-collapse collapse"><div class="accordion-body">
+                <ul class="list-unstyled">
+                  <li><strong>ID:</strong> {{ produto.id }}</li>
+                  <li><strong>Nome:</strong> {{ produto.nome }}</li>
+                  <li><strong>Preço:</strong> R$ {{ "%.2f"|format(produto.preco) }}</li>
+                  <li><strong>Estoque:</strong> {{ produto.quantidade }}</li>
+                </ul>
+              </div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <div class="wave-trim" style="transform: scaleY(-1);">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ffffff" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3L1440,288L1440,0Z"></path></svg>
+    </div>
+
+    <footer class="text-white-50 text-center p-4"><div class="container"><p class="mb-0">&copy; 2025 Loja Noite Azul. Todos os direitos reservados.</p></div></footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

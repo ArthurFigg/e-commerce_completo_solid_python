@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Carrinho de Compras - Loja Noite Azul</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --cor-fundo-escuro: #0d1a2d;
+        --cor-fundo-componente: #172b46;
+        --cor-azul-destaque: #0099ff;
+        --cor-texto-claro: #f8f9fa;
+      }
+      body { display:flex; flex-direction:column; min-height:100vh; background:var(--cor-fundo-escuro); color:var(--cor-texto-claro); font-family:'Poppins',sans-serif; }
+      main { flex-grow:1; }
+      .wave-trim { line-height:0; height:80px; overflow:hidden; }
+      .wave-trim svg { height:100%; width:100%; }
+      .table { --bs-table-bg: var(--cor-fundo-componente); --bs-table-border-color:#2a3f5e; --bs-table-color: var(--cor-texto-claro); }
+      .card.totais { background-color: var(--cor-fundo-componente); border-color: #2a3f5e; }
+      .btn-qty { width:40px; }
+      .input-qty { max-width:90px; }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: rgba(13, 26, 45, 0.8); backdrop-filter: blur(10px);">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('homepage') }}">🌊 Loja Noite Azul</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('homepage') }}">Continuar comprando</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="wave-trim">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ffffff" fill-opacity="1" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3L1440,288L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0,1020,0,960,0,900,0,840,0,780,0,720,0,660,0,600,0,540,0,480,0,420,0,360,0,300,0,240,0,180,0,120,0,60,0,30,0L0,0Z"></path></svg>
+    </div>
+
+    <main class="container my-5">
+      <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Seu Carrinho de Compras</h1>
+        <p class="lead text-white-50">Revise seus itens antes de finalizar a compra.</p>
+      </div>
+
+      {% if not itens or itens|length == 0 %}
+        <div class="text-center py-5">
+          <p class="text-white-50 mb-4">Seu carrinho está vazio.</p>
+          <a href="{{ url_for('homepage') }}" class="btn btn-primary">Voltar às compras</a>
+        </div>
+      {% else %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 50%;">Produto</th>
+                <th scope="col" class="text-center">Preço</th>
+                <th scope="col" class="text-center">Quantidade</th>
+                <th scope="col" class="text-center">Subtotal</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set ns = namespace(subtotal=0) %}
+              {% for item in itens %}
+                {% set p = item.produto %}
+                {% set qtd = item.quantidade %}
+                {% set sub = (p.preco * qtd) %}
+                {% set ns.subtotal = ns.subtotal + sub %}
+
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img 
+                        src="https://placehold.co/100x100/0d1a2d/f8f9fa?text={{ p.nome|urlencode }}" 
+                        class="rounded me-3" 
+                        alt="Imagem de {{ p.nome }}">
+                      <div>
+                        <h5 class="mb-0">
+                          <a class="link-light text-decoration-none" href="{{ url_for('produto_detalhe', product_id=p.id) }}">{{ p.nome }}</a>
+                        </h5>
+                        <small class="text-white-50">ID #{{ p.id }}</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="text-center">R$ {{ "%.2f"|format(p.preco) }}</td>
+
+                  <td class="text-center">
+                    <!-- Atualizar quantidade -->
+                    <form class="d-inline-block" method="post" action="{{ url_for('atualizar_carrinho', product_id=p.id) }}">
+                      <div class="input-group input-qty mx-auto">
+                        <button class="btn btn-outline-secondary btn-qty" type="submit" name="delta" value="-1" {% if qtd <= 1 %}disabled{% endif %}>
+                          <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" class="form-control text-center" name="quantidade" value="{{ qtd }}" min="1" {% if p.quantidade %}max="{{ p.quantidade }}"{% endif %}>
+                        <button class="btn btn-outline-secondary btn-qty" type="submit" name="delta" value="1" {% if p.quantidade and qtd >= p.quantidade %}disabled{% endif %}>
+                          <i class="bi bi-plus"></i>
+                        </button>
+                      </div>
+                      <input type="hidden" name="acao" value="definir_qtd">
+                    </form>
+                  </td>
+
+                  <td class="text-center fw-bold">R$ {{ "%.2f"|format(sub) }}</td>
+
+                  <td class="text-center">
+                    <!-- Remover item -->
+                    <form method="post" action="{{ url_for('remover_do_carrinho', product_id=p.id) }}">
+                      <button class="btn btn-outline-danger btn-sm" type="submit" title="Remover">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% set valor_frete = frete if frete is defined else 0.0 %}
+        {% set total = ns.subtotal + valor_frete %}
+
+        <div class="row mt-4 justify-content-end">
+          <div class="col-md-5 col-lg-4">
+            <div class="card text-white totais">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Resumo do Pedido</h4>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0" style="background-color: transparent; color: inherit;">
+                    Subtotal
+                    <span>R$ {{ "%.2f"|format(ns.subtotal) }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0" style="background-color: transparent; color: inherit;">
+                    Frete
+                    <span>R$ {{ "%.2f"|format(valor_frete) }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-secondary-subtle px-0 mt-3" style="background-color: transparent; color: inherit;">
+                    <strong class="fs-5">Total</strong>
+                    <strong class="fs-5">R$ {{ "%.2f"|format(total) }}</strong>
+                  </li>
+                </ul>
+
+                <!-- CORRIGIDO: agora vai direto ao checkout -->
+                <div class="d-grid mt-4">
+                  <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg">Finalizar Compra</a>
+                </div>
+
+                <!-- Se preferir manter o form antigo, descomente abaixo (a rota agora existe):
+                <div class="d-grid mt-3">
+                  <form method="post" action="{{ url_for('finalizar_compra') }}">
+                    <button class="btn btn-outline-light btn-lg" type="submit">Finalizar Compra</button>
+                  </form>
+                </div>
+                -->
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </main>
+
+    <div class="wave-trim" style="transform: scaleY(-1);">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ffffff" fill-opacity="1" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3L1440,288L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0,1020,0,960,0,900,0,840,0,780,0,720,0,660,0,600,0,540,0,480,0,420,0,360,0,300,0,240,0,180,0,120,0,60,0,30,0L0,0Z"></path></svg>
+    </div>
+
+    <footer class="text-white-50 text-center p-4">
+      <div class="container">
+        <p class="mb-0">&copy; 2025 Loja Noite Azul. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

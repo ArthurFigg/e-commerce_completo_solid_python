@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Loja Noite Azul - Final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+      :root { --cor-fundo-escuro:#0d1a2d; --cor-fundo-componente:#172b46; --cor-azul-destaque:#0099ff; --cor-texto-claro:#f8f9fa; }
+      body { background:var(--cor-fundo-escuro); color:var(--cor-texto-claro); font-family:'Poppins',sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+      main { flex-grow:1; }
+      .accordion-item { background-color:var(--cor-fundo-componente); border:1px solid #2a3f5e; }
+      .accordion-body { background-color:var(--cor-fundo-escuro); }
+      .accordion-header .accordion-button { background-color:var(--cor-fundo-componente); color:var(--cor-texto-claro); font-weight:600; }
+      .accordion-button:not(.collapsed){ box-shadow:none; background-color:var(--cor-fundo-escuro); color:var(--cor-azul-destaque); }
+      .accordion-button:focus{ box-shadow:none; border-color:rgba(0,153,255,.5); }
+      .accordion-button::after{ background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f8f9fa'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"); }
+      .accordion-button:not(.collapsed)::after{ background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230099ff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"); }
+      .product-card { background-color:var(--cor-fundo-escuro); border:1px solid #2a3f5e; }
+      .wave-divider { line-height:0; height:80px; overflow:hidden; }
+      .wave-divider svg { height:100%; width:100%; }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--cor-azul-destaque); backdrop-filter: blur(10px);">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('homepage') }}">🌊 Loja Noite Azul</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <!-- Corrigido para usar url_for -->
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('ver_carrinho') }}">Carrinho <i class="bi bi-cart"></i></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="wave-divider">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#0099ff" fill-opacity="1" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3L1440,288L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0,1020,0,960,0,900,0,840,0,780,0,720,0,660,0,600,0,540,0,480,0,420,0,360,0,300,0,240,0,180,0,120,0,60,0,30,0L0,0Z"></path></svg>
+    </div>
+
+    <header class="text-center pt-2 pb-5">
+      <div class="container">
+        <h1 class="display-4 fw-bold">Design. Inovação. Simplicidade.</h1>
+        <p class="lead col-md-8 mx-auto text-white-50">Tudo o que você precisa, com a elegância que você merece.</p>
+      </div>
+    </header>
+    
+    <main class="container">
+      <div class="accordion" id="mainAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <i class="bi bi-grid-3x3-gap-fill me-2"></i> Coleção Principal
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+              <p class="text-white-50 mb-4">Explore nossa seleção curada de produtos...</p>
+              
+              <div class="row">
+                {% for produto in produtos %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                  <div class="card h-100 text-white product-card">
+                    <img src="https://placehold.co/600x400/0d1a2d/f8f9fa?text={{ produto.nome }}" class="card-img-top" alt="{{ produto.nome }}">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ produto.nome }}</h5>
+                      <p class="card-text text-white-50">Descrição do produto aqui.</p>
+                      <h4 class="card-text text-end">R$ {{ "%.2f"|format(produto.preco) }}</h4>
+
+                      <!-- Corrigido: adicionar ao carrinho com url_for -->
+                      <form method="post" action="{{ url_for('adicionar_ao_carrinho', product_id=produto.id) }}" class="mt-3">
+                        <div class="input-group">
+                          <input type="number" name="quantidade" class="form-control" value="1" min="1" {% if produto.quantidade %}max="{{ produto.quantidade }}"{% endif %}>
+                          <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-cart-plus"></i> Adicionar
+                          </button>
+                        </div>
+                      </form>
+
+                      <a href="{{ url_for('produto_detalhe', product_id=produto.id) }}" class="btn btn-primary w-100 mt-3">Ver Detalhes</a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seções seguintes mantidas iguais ao seu HTML -->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+              <i class="bi bi-gem me-2"></i> Nossa Promessa de Valor
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+              <!-- ... seu conteúdo ... -->
+              <div class="row text-center">
+                <div class="col-md-4"><i class="bi bi-truck display-4 text-primary"></i><h4 class="mt-3">Logística Eficiente</h4><p class="text-white-50">...</p></div>
+                <div class="col-md-4"><i class="bi bi-shield-check display-4 text-primary"></i><h4 class="mt-3">Segurança Total</h4><p class="text-white-50">...</p></div>
+                <div class="col-md-4"><i class="bi bi-headset display-4 text-primary"></i><h4 class="mt-3">Suporte Humanizado</h4><p class="text-white-50">...</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+              <i class="bi bi-info-circle-fill me-2"></i> O Manifesto Noite Azul
+            </button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+              <p class="lead">"Acreditamos que os objetos..."</p>
+              <p class="text-white-50">A Loja Noite Azul nasceu dessa filosofia...</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <div class="wave-divider" style="transform: scaleY(-1);">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#0099ff" fill-opacity="1" d="M0,160L30,144C60,128,120,96,180,90.7C240,85,300,107,360,122.7C420,139,480,149,540,181.3C600,213,660,267,720,266.7C780,267,840,213,900,176C960,139,1020,117,1080,128C1140,139,1200,181,1260,213.3C1320,245,1380,267,1410,277.3
